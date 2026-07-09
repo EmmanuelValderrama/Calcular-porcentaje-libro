@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Progreso de Lectura</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ECE8E1;
+            --bg-secondary: #F9F7F4;
+            --text-primary: #2C3E50;
+            --text-secondary: #5D6D7B;
+            --accent: #8B6F47;
+            --progress: #4A7BA7;
+            --progress-light: #E8EEF5;
+            --border: #D4CFCA;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(44, 62, 80, 0.1);
+            padding: 48px;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--progress) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .input-field input {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            background: var(--bg-secondary);
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: var(--progress);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
+        }
+
+        .result-section {
+            background: var(--progress-light);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .percentage-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--progress);
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .percentage-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-bar-container {
+            background: var(--border);
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--progress) 0%, #3A6B97 100%);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--progress);
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--progress) 0%, #3A6B97 100%);
+            color: white;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 123, 167, 0.3);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-reset:hover {
+            background: var(--border);
+        }
+
+        .book-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 16px;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #D4EDDA;
+            color: #155724;
+            display: block;
+        }
+
+        .message.info {
+            background: #D1ECF1;
+            color: #0C5460;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .percentage-display {
+                font-size: 40px;
+            }
+
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="book-icon">📖</div>
+            <h1>Mi Progreso</h1>
+            <p>Calcula tu porcentaje de lectura</p>
+        </div>
+
+        <form onsubmit="calcular(event)">
+            <div class="input-group">
+                <div class="input-field">
+                    <label for="paginaActual">Página Actual</label>
+                    <input 
+                        type="number" 
+                        id="paginaActual" 
+                        placeholder="42" 
+                        min="0" 
+                        required
+                    >
+                </div>
+                <div class="input-field">
+                    <label for="totalPaginas">Total de Páginas</label>
+                    <input 
+                        type="number" 
+                        id="totalPaginas" 
+                        placeholder="350" 
+                        min="1" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="percentage-display" id="resultado">0%</div>
+                <div class="percentage-label">de tu libro leído</div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value" id="paginasLeidas">0</div>
+                        <div class="stat-label">páginas leídas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="paginasRestantes">0</div>
+                        <div class="stat-label">por leer</div>
+                    </div>
+                </div>
+
+                <div class="message" id="motivacion"></div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-calculate">Calcular</button>
+                <button type="reset" class="btn-reset" onclick="limpiar()">Limpiar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const mensajesMotivaciónales = {
+            inicio: "¿Listos para empezar?",
+            cuarto: "¡25% del camino recorrido! 🚀",
+            mitad: "¡A la mitad! 📖 Vas muy bien",
+            tresycuartos: "¡75% completado! Ya casi terminas 💪",
+            final: "¡Lo lograste! 🎉 Libro completado"
+        };
+
+        function obtenerMensaje(porcentaje) {
+            if (porcentaje >= 100) return mensajesMotivaciónales.final;
+            if (porcentaje >= 75) return mensajesMotivaciónales.tresycuartos;
+            if (porcentaje >= 50) return mensajesMotivaciónales.mitad;
+            if (porcentaje >= 25) return mensajesMotivaciónales.cuarto;
+            if (porcentaje > 0) return mensajesMotivaciónales.inicio;
+            return "";
+        }
+
+        function calcular(event) {
+            event.preventDefault();
+
+            const paginaActual = parseInt(document.getElementById('paginaActual').value);
+            const totalPaginas = parseInt(document.getElementById('totalPaginas').value);
+
+            if (isNaN(paginaActual) || isNaN(totalPaginas) || totalPaginas === 0) {
+                return;
+            }
+
+            if (paginaActual > totalPaginas) {
+                document.getElementById('paginaActual').value = totalPaginas;
+                calcular({ preventDefault: () => {} });
+                return;
+            }
+
+            const porcentaje = (paginaActual / totalPaginas) * 100;
+            const porcentajeRedondeado = Math.round(porcentaje * 10) / 10;
+            const paginasRestantes = Math.max(0, totalPaginas - paginaActual);
+
+            document.getElementById('resultado').textContent = porcentajeRedondeado + '%';
+            document.getElementById('progressBar').style.width = porcentajeRedondeado + '%';
+            document.getElementById('paginasLeidas').textContent = paginaActual;
+            document.getElementById('paginasRestantes').textContent = paginasRestantes;
+
+            const mensaje = obtenerMensaje(porcentajeRedondeado);
+            if (mensaje) {
+                document.getElementById('motivacion').textContent = mensaje;
+                document.getElementById('motivacion').className = 'message info';
+            }
+        }
+
+        function limpiar() {
+            document.getElementById('resultado').textContent = '0%';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('paginasLeidas').textContent = '0';
+            document.getElementById('paginasRestantes').textContent = '0';
+            document.getElementById('motivacion').className = 'message';
+            document.getElementById('paginaActual').focus();
+        }
+
+        // Calcular automáticamente cuando el usuario escribe
+        document.getElementById('paginaActual').addEventListener('input', calcular);
+        document.getElementById('totalPaginas').addEventListener('input', calcular);
+
+        // Focus en el primer input
+        document.getElementById('paginaActual').focus();
+    </script>
+</body>
+</html>
